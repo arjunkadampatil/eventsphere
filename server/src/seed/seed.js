@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
-const { faker } = require('@faker-js/faker');
 const User = require('../models/User');
 const Event = require('../models/Event');
 const Registration = require('../models/Registration');
 const Announcement = require('../models/Announcement');
 const RefreshToken = require('../models/RefreshToken');
 const { CLUBS, EVENTS, ANNOUNCEMENTS } = require('./data');
+const { createRandom } = require('./random');
 
 const DEMO_PASSWORD = 'Demo@1234';
 const HOUR = 60 * 60 * 1000;
@@ -22,7 +22,7 @@ async function seed({ reset = false, students = 50, seedValue = 7 } = {}) {
   if (!reset && (await User.exists({ email: 'admin@eventsphere.dev' }))) {
     return { skipped: true };
   }
-  faker.seed(seedValue);
+  const rand = createRandom(seedValue);
   await Promise.all(
     [Announcement, Registration, Event, RefreshToken, User].map((Model) => Model.deleteMany({})),
   );
@@ -36,12 +36,11 @@ async function seed({ reset = false, students = 50, seedValue = 7 } = {}) {
   const colleges = ['Sitare University', 'Sitare University', 'Sitare University', 'IIIT Lucknow', 'BBD University'];
   const seen = new Set(people.map((p) => p.email));
   while (people.filter((p) => p.role === 'student').length < students) {
-    const first = faker.person.firstName();
-    const last = faker.person.lastName();
-    const email = faker.internet.email({ firstName: first, lastName: last, provider: 'students.eventsphere.dev' }).toLowerCase();
+    const { first, last } = rand.person();
+    const email = `${first}.${last}${rand.int(1, 99)}@students.eventsphere.dev`.toLowerCase();
     if (seen.has(email)) continue;
     seen.add(email);
-    people.push({ name: `${first} ${last}`, email, role: 'student', college: faker.helpers.arrayElement(colleges), passwordHash });
+    people.push({ name: `${first} ${last}`, email, role: 'student', college: rand.pick(colleges), passwordHash });
   }
   const users = await User.insertMany(people);
   const clubByKey = Object.fromEntries(CLUBS.map((c) => [c.key, users.find((u) => u.email === c.email)]));
@@ -79,21 +78,19 @@ async function seed({ reset = false, students = 50, seedValue = 7 } = {}) {
   for (const event of events.filter((e) => e.status === 'approved')) {
     const past = event.endsAt < now;
     const limit = event.capacity || 150;
-    const target = Math.min(otherStudents.length, Math.round(limit * faker.number.float({ min: 0.35, max: 0.85 })));
-    const attendees = faker.helpers.arrayElements(otherStudents, target);
+    const target = Math.min(otherStudents.length, Math.round(limit * rand.float(0.35, 0.85)));
+    const attendees = rand.sample(otherStudents, target);
     if (demoUpcoming.includes(event.title) || demoPast.includes(event.title)) attendees.push(demoStudent);
     for (const student of attendees.slice(0, event.capacity || attendees.length)) {
-      const registeredAt = new Date(
-        faker.date.between({ from: event.createdAt, to: Math.min(event.startsAt.getTime(), now.getTime()) }),
-      );
-      const attended = past && (student === demoStudent || faker.number.float() < 0.72);
+      const registeredAt = rand.dateBetween(event.createdAt, new Date(Math.min(event.startsAt.getTime(), now.getTime())));
+      const attended = past && (student === demoStudent || rand.next() < 0.72);
       registrations.push({
         event: event._id,
         user: student._id,
         college: student.college,
         createdAt: registeredAt,
         updatedAt: registeredAt,
-        attendedAt: attended ? new Date(event.startsAt.getTime() + faker.number.int({ min: 0, max: 40 }) * 60000) : null,
+        attendedAt: attended ? new Date(event.startsAt.getTime() + rand.int(0, 40) * 60000) : null,
         checkedInBy: attended ? event.club : null,
       });
     }
