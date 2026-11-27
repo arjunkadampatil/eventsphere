@@ -220,7 +220,7 @@ The landing-page performance range is run-to-run variance in blocking time on th
 
 1. **MongoDB Atlas:** create a free M0 cluster, allow access from anywhere (`0.0.0.0/0`), and copy the connection string.
 2. **Cloudinary:** copy the `CLOUDINARY_URL` from the dashboard.
-3. **Render (API):** New → Blueprint → this repo ([`render.yaml`](render.yaml)). Fill in `MONGODB_URI`, `CLOUDINARY_URL`, `CLIENT_URL` (your Vercel URL) and `CORS_ORIGINS`. Then run `npm run seed` once from the Render shell.
+3. **Render (API):** New → Blueprint → this repo ([`render.yaml`](render.yaml)). Fill in `MONGODB_URI`, `CLOUDINARY_URL`, `CLIENT_URL` (your Vercel URL) and `CORS_ORIGINS`. With `DEMO_MODE=true`, the API seeds an empty database on first start, so no shell access is needed.
 4. **Vercel (client):** import the repo with **root directory `client`** and set `VITE_SOCKET_URL=https://<render-app>.onrender.com`. If your Render URL differs, update it in [`client/vercel.json`](client/vercel.json).
 5. **Nightly reset (optional):** add the repo secrets `API_URL` and `RESEED_SECRET` so [`reseed-demo.yml`](.github/workflows/reseed-demo.yml) runs every night.
 

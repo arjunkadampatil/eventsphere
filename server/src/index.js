@@ -6,6 +6,12 @@ const { initRealtime } = require('./services/realtime');
 
 async function main() {
   await connectDb(env.MONGODB_URI);
+  if (env.DEMO_MODE) {
+    // Hosts like Render's free plan have no shell, so a fresh demo database seeds itself.
+    // seed() is a no-op once the demo accounts exist.
+    const summary = await require('./seed/seed').seed();
+    if (!summary.skipped) console.log('Empty database: loaded demo data', summary);
+  }
   const app = createApp();
   const server = http.createServer(app);
   initRealtime(server);
