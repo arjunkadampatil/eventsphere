@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+coverage/
+
+# Uploads (posters go to Cloudinary in production)
+server/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE / OS / hosting state
+.vscode/
+.idea/
+.replit
+replit.nix
+.local/
+.vercel/
+.DS_Store
+Thumbs.db
