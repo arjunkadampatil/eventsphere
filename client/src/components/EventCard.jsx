@@ -3,7 +3,8 @@ import { CalendarDays, MapPin, Users, Video } from 'lucide-react';
 import Poster from './Poster';
 import { formatDate, formatTime, formatFee } from '../lib/format';
 
-export default function EventCard({ event }) {
+export default function EventCard({ event, headingLevel = 3 }) {
+  const Heading = `h${headingLevel}`;
   const seatsLeft = event.capacity > 0 ? Math.max(event.capacity - event.registrationsCount, 0) : null;
   return (
     <article className="card group relative flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lift">
@@ -18,27 +19,29 @@ export default function EventCard({ event }) {
       </div>
       <div className="flex flex-1 flex-col p-5">
         <p className="text-xs font-medium text-primary-700 dark:text-primary-300">{event.club?.name}</p>
-        <h3 className="mt-1 line-clamp-2 text-lg leading-snug font-semibold">
+        <Heading className="mt-1 line-clamp-2 text-lg leading-snug font-semibold">
           <Link to={`/events/${event.id}`} className="after:absolute after:inset-0 focus:outline-none">
             <span className="relative">{event.title}</span>
           </Link>
-        </h3>
+        </Heading>
         <dl className="mt-3 space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
-          <div className="flex items-center gap-2">
+          <div>
             <dt className="sr-only">When</dt>
-            <CalendarDays className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <dd>
+            <dd className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 shrink-0" aria-hidden="true" />
               {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
             </dd>
           </div>
-          <div className="flex items-center gap-2">
+          <div>
             <dt className="sr-only">Where</dt>
-            {event.mode === 'online' ? (
-              <Video className="h-4 w-4 shrink-0" aria-hidden="true" />
-            ) : (
-              <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
-            )}
-            <dd className="truncate">{event.mode === 'online' ? 'Online' : event.venue}</dd>
+            <dd className="flex items-center gap-2">
+              {event.mode === 'online' ? (
+                <Video className="h-4 w-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
+              )}
+              <span className="truncate">{event.mode === 'online' ? 'Online' : event.venue}</span>
+            </dd>
           </div>
         </dl>
         <div className="mt-auto flex items-center justify-between gap-3 pt-4 text-xs text-slate-500 dark:text-slate-400">

@@ -75,7 +75,7 @@ export default function Landing() {
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.isLoading
-              ? Array.from({ length: 3 }, (_, i) => <EventCardSkeleton key={i} />)
+              ? Array.from({ length: 6 }, (_, i) => <EventCardSkeleton key={i} />)
               : featured.data?.items.map((e) => <EventCard key={e.id} event={e} />)}
           </div>
         </div>

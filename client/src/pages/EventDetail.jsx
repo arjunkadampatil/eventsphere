@@ -82,69 +82,69 @@ function RegisterPanel({ event, registration }) {
   return (
     <aside className="card h-fit p-5 lg:sticky lg:top-24" aria-label="Registration">
       <dl className="space-y-3 text-sm">
-        <div className="flex items-start gap-3">
-          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          <div>
-            <dt className="sr-only">Date</dt>
-            <dd className="font-medium text-slate-900 dark:text-white">{formatLongDate(event.startsAt)}</dd>
-          </div>
+        <div>
+          <dt className="sr-only">Date</dt>
+          <dd className="flex items-start gap-3 font-medium text-slate-900 dark:text-white">
+            <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            {formatLongDate(event.startsAt)}
+          </dd>
         </div>
-        <div className="flex items-start gap-3">
-          <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          <div>
-            <dt className="sr-only">Time</dt>
-            <dd>
-              {formatTime(event.startsAt)} – {formatTime(event.endsAt)} IST
-            </dd>
-          </div>
+        <div>
+          <dt className="sr-only">Time</dt>
+          <dd className="flex items-start gap-3">
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            {formatTime(event.startsAt)} – {formatTime(event.endsAt)} IST
+          </dd>
         </div>
-        <div className="flex items-start gap-3">
-          {event.mode === 'online' ? (
-            <Video className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          ) : (
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          )}
-          <div>
-            <dt className="sr-only">Where</dt>
-            <dd>
-              {event.mode === 'online'
-                ? registration && event.meetingLink
-                  ? <a className="link" href={event.meetingLink} target="_blank" rel="noreferrer">Join online</a>
-                  : 'Online (link shared after registering)'
-                : event.venue}
-            </dd>
-          </div>
+        <div>
+          <dt className="sr-only">Where</dt>
+          <dd className="flex items-start gap-3">
+            {event.mode === 'online' ? (
+              <Video className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            ) : (
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            )}
+            {event.mode !== 'online' ? (
+              event.venue
+            ) : registration && event.meetingLink ? (
+              <a className="link" href={event.meetingLink} target="_blank" rel="noreferrer">
+                Join online
+              </a>
+            ) : (
+              'Online (link shared after registering)'
+            )}
+          </dd>
         </div>
-        <div className="flex items-start gap-3">
-          <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          <div>
-            <dt className="sr-only">Fee</dt>
-            <dd>{formatFee(event.fee)}</dd>
-          </div>
+        <div>
+          <dt className="sr-only">Fee</dt>
+          <dd className="flex items-start gap-3">
+            <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            {formatFee(event.fee)}
+          </dd>
         </div>
-        <div className="flex items-start gap-3">
-          <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          <div className="flex-1">
-            <dt className="sr-only">Registrations</dt>
-            <dd>
+        <div>
+          <dt className="sr-only">Registrations</dt>
+          <dd className="flex items-start gap-3">
+            <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            <span className="flex-1">
               {event.registrationsCount} registered{event.capacity > 0 && ` of ${event.capacity}`}
               {capacityPct !== null && (
-                <div
-                  className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
+                <span
+                  className="mt-2 block h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
                   role="progressbar"
                   aria-valuenow={capacityPct}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-label="Seats filled"
                 >
-                  <div
-                    className={`h-full rounded-full ${capacityPct >= 90 ? 'bg-amber-500' : 'bg-primary-600'}`}
+                  <span
+                    className={`block h-full rounded-full ${capacityPct >= 90 ? 'bg-amber-500' : 'bg-primary-600'}`}
                     style={{ width: `${capacityPct}%` }}
                   />
-                </div>
+                </span>
               )}
-            </dd>
-          </div>
+            </span>
+          </dd>
         </div>
       </dl>
       <div className="mt-5 border-t border-slate-100 pt-5 dark:border-slate-800">{action}</div>

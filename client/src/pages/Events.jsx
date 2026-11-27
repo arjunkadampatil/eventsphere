@@ -154,7 +154,7 @@ export default function Events() {
         <>
           <div className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${events.isFetching ? 'opacity-70' : ''}`}>
             {events.data.items.map((e) => (
-              <EventCard key={e.id} event={e} />
+              <EventCard key={e.id} event={e} headingLevel={2} />
             ))}
           </div>
           <div className="mt-10">
