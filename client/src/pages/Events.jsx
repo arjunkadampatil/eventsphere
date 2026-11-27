@@ -16,7 +16,9 @@ export default function Events() {
   const page = Number(filters.page) || 1;
   const [search, setSearch] = useState(filters.q);
 
-  useEffect(() => setSearch(filters.q), [filters.q]);
+  useEffect(() => {
+    setSearch(filters.q);
+  }, [filters.q]);
 
   const update = (changes) => {
     const next = new URLSearchParams(params);

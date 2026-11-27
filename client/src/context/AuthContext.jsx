@@ -10,16 +10,14 @@ export function AuthProvider({ children }) {
   const [status, setStatus] = useState('loading');
   const queryClient = useQueryClient();
 
-  useEffect(
-    () =>
-      onSessionChange((next) => {
-        setUser(next);
-        setStatus(next ? 'authenticated' : 'anonymous');
-        if (next) connectSocket(getAccessToken());
-        else disconnectSocket();
-      }),
-    [],
-  );
+  useEffect(() => {
+    return onSessionChange((next) => {
+      setUser(next);
+      setStatus(next ? 'authenticated' : 'anonymous');
+      if (next) connectSocket(getAccessToken());
+      else disconnectSocket();
+    });
+  }, []);
 
   useEffect(() => {
     refreshSession();

@@ -50,7 +50,9 @@ export default function Layout() {
   const location = useLocation();
   useAnnouncementToasts();
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const links = [{ to: '/events', label: 'Events' }];
   if (user?.role === 'student') links.push({ to: '/dashboard', label: 'My tickets' });
