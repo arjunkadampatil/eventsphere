@@ -1,0 +1,20 @@
+name: Refresh demo data
+
+# Rebuilds the public demo every night so it always has upcoming events.
+# Needs repository secrets API_URL (e.g. https://eventsphere-api.onrender.com) and RESEED_SECRET.
+on:
+  schedule:
+    - cron: '30 18 * * *' # 00:00 IST
+  workflow_dispatch:
+
+jobs:
+  reseed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the API (free hosting sleeps when idle)
+        run: curl -s -o /dev/null --retry 5 --retry-delay 15 --max-time 90 "${{ secrets.API_URL }}/api/health" || true
+      - name: Reseed
+        run: |
+          curl -fsS -X POST --max-time 120 \
+            -H "Authorization: Bearer ${{ secrets.RESEED_SECRET }}" \
+            "${{ secrets.API_URL }}/api/admin/reseed"
