@@ -94,8 +94,9 @@ describe('sessions', () => {
     expect((await api().post('/api/auth/refresh').set('Cookie', cookie)).status).toBe(401);
   });
 
-  it('refresh without a cookie is 401', async () => {
-    expect((await api().post('/api/auth/refresh')).status).toBe(401);
+  it('refresh without a cookie is a quiet 204, a bad cookie is 401', async () => {
+    expect((await api().post('/api/auth/refresh')).status).toBe(204);
+    expect((await api().post('/api/auth/refresh').set('Cookie', 'es_refresh=forged')).status).toBe(401);
   });
 
   it('/me needs a valid access token', async () => {

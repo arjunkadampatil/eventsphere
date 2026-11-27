@@ -50,6 +50,8 @@ router.post('/login', authLimiter, validate({ body: schemas.login }), async (req
 });
 
 router.post('/refresh', async (req, res) => {
+  // No cookie just means "not signed in"; answer quietly instead of with an error.
+  if (!req.cookies?.[REFRESH_COOKIE]) return res.status(204).end();
   try {
     const { userId, token, expiresAt } = await rotateRefreshToken(req.cookies?.[REFRESH_COOKIE]);
     const user = await User.findById(userId);

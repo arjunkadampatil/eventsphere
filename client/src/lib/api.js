@@ -51,6 +51,7 @@ export function refreshSession() {
     refreshing = fetch(`${BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include' })
       .then(parse)
       .then((session) => {
+        // 204 (no cookie) parses to null: signed out.
         setSession(session);
         return session;
       })
