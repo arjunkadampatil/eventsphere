@@ -178,7 +178,7 @@ export default function AdminDashboard() {
         <StatCard label="Students" value={kpis.students} hint={`${kpis.clubs} clubs`} icon={GraduationCap} />
         <StatCard label="Live events" value={kpis.approvedEvents} hint={`${kpis.pendingEvents} pending`} icon={CalendarCheck} />
         <StatCard label="Registrations" value={kpis.registrations.toLocaleString('en-IN')} hint={`₹${kpis.revenue.toLocaleString('en-IN')} in fees`} icon={Ticket} />
-        <StatCard label="Attendance rate" value={`${kpis.attendanceRate}%`} hint="Checked in ÷ registered" icon={Percent} />
+        <StatCard label="Attendance rate" value={`${kpis.attendanceRate}%`} hint="Past events: checked in ÷ registered" icon={Percent} />
       </div>
 
       <div className="mt-8">

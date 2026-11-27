@@ -20,11 +20,15 @@ router.get('/analytics', requireRole('admin'), async (_req, res) => {
   const [users, events, regTotals, byMonth, byCategory, topEvents, pending] = await Promise.all([
     User.aggregate([{ $group: { _id: '$role', n: { $sum: 1 } } }]),
     Event.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
+    // Attendance only means something for events that have already happened.
     Registration.aggregate([
+      { $lookup: { from: 'events', localField: 'event', foreignField: '_id', as: 'e' } },
+      { $unwind: '$e' },
       {
         $group: {
           _id: null,
           total: { $sum: 1 },
+          finished: { $sum: { $cond: [{ $lt: ['$e.endsAt', now] }, 1, 0] } },
           attended: { $sum: { $cond: [{ $ne: ['$attendedAt', null] }, 1, 0] } },
         },
       },
@@ -58,7 +62,7 @@ router.get('/analytics', requireRole('admin'), async (_req, res) => {
   }
   const monthMap = new Map(byMonth.map((m) => [m._id, m]));
   const count = (rows, key) => rows.find((r) => r._id === key)?.n ?? 0;
-  const totals = regTotals[0] ?? { total: 0, attended: 0 };
+  const totals = regTotals[0] ?? { total: 0, finished: 0, attended: 0 };
 
   const revenue = await Registration.aggregate([
     { $lookup: { from: 'events', localField: 'event', foreignField: '_id', as: 'e' } },
@@ -73,7 +77,7 @@ router.get('/analytics', requireRole('admin'), async (_req, res) => {
       approvedEvents: count(events, 'approved'),
       pendingEvents: pending,
       registrations: totals.total,
-      attendanceRate: totals.total ? Math.round((totals.attended / totals.total) * 100) : 0,
+      attendanceRate: totals.finished ? Math.round((totals.attended / totals.finished) * 100) : 0,
       revenue: revenue[0]?.total ?? 0,
     },
     registrationsByMonth: months.map((m) => ({

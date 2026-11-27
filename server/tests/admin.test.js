@@ -14,7 +14,15 @@ describe('analytics', () => {
     const admin = await makeUser('admin');
     const club = await makeUser('club', { name: 'Robotics' });
     const students = await Promise.all([makeUser('student'), makeUser('student')]);
-    const event = await makeEvent(club, { title: 'Bot Race', category: 'Tech', fee: 50, registrationsCount: 2, attendedCount: 1 });
+    const event = await makeEvent(club, {
+      title: 'Bot Race',
+      category: 'Tech',
+      fee: 50,
+      registrationsCount: 2,
+      attendedCount: 1,
+      startsAt: new Date(Date.now() - 3 * HOUR),
+      endsAt: new Date(Date.now() - HOUR),
+    });
     await makeEvent(club, { status: 'pending' });
     await Registration.create([
       { event: event._id, user: students[0]._id, attendedAt: new Date() },
@@ -37,6 +45,11 @@ describe('analytics', () => {
     expect(res.body.registrationsByMonth.at(-1)).toMatchObject({ registrations: 2, attended: 1 });
     expect(res.body.eventsByCategory).toEqual([{ category: 'Tech', events: 1, registrations: 2 }]);
     expect(res.body.topEvents[0]).toMatchObject({ title: 'Bot Race', club: 'Robotics', registrations: 2 });
+
+    const future = await makeEvent(club, { title: 'Later' });
+    await Registration.create({ event: future._id, user: students[0]._id });
+    const again = await api().get('/api/admin/analytics').set(auth(admin));
+    expect(again.body.kpis).toMatchObject({ registrations: 3, attendanceRate: 50 });
   });
 });
 
