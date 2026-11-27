@@ -27,6 +27,7 @@ describe('registering', () => {
     expect(res.status).toBe(201);
     expect(res.body.registration.ticketCode).toMatch(/^[\w-]{12}$/);
     expect(res.body.registrationsCount).toBe(1);
+    for (let i = 0; i < 50 && sent.length === 0; i += 1) await new Promise((r) => setTimeout(r, 10));
     expect(sent[0]).toMatchObject({ to: student.email, subject: "You're registered: Hack Night" });
     expect(sent[0].text).toContain(res.body.registration.ticketCode);
   });

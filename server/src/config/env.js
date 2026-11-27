@@ -1,7 +1,7 @@
 const path = require('node:path');
 const { z } = require('zod');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 const list = (value) =>
   (value || '')
