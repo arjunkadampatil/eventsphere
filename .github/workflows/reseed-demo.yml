@@ -1,7 +1,7 @@
 name: Refresh demo data
 
 # Rebuilds the public demo every night so it always has upcoming events.
-# Needs repository secrets API_URL (e.g. https://eventsphere-api.onrender.com) and RESEED_SECRET.
+# Needs repository secrets API_URL (e.g. https://eventsphere-api-dlan.onrender.com) and RESEED_SECRET.
 on:
   schedule:
     - cron: '30 18 * * *' # 00:00 IST

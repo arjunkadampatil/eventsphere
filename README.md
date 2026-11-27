@@ -8,7 +8,9 @@
 
 **A university event platform: discover events, register in one tap, carry a QR ticket, get live announcements and download a certificate the moment it's over.**
 
-**Live demo:** _deploying. Link coming soon._ · **API docs:** `/api/docs`
+**Live demo:** [eventsphere-arjunkadam.vercel.app](https://eventsphere-arjunkadam.vercel.app) · **API:** [eventsphere-api-dlan.onrender.com](https://eventsphere-api-dlan.onrender.com/api/health) · **API docs:** [/api/docs](https://eventsphere-api-dlan.onrender.com/api/docs)
+
+> The API runs on Render's free plan and sleeps when idle, so the first request after a quiet spell can take about 30 seconds.
 
 | Role | Email | Password |
 |---|---|---|
@@ -193,9 +195,10 @@ Interactive docs: **`/api/docs`** (Swagger UI) · raw spec: `/api/openapi.json`.
 ```bash
 npm test                              # server (Jest) + client (Vitest)
 npm run test:coverage -w server
+npm run test:e2e -w client            # Playwright against the production build (needs MongoDB + Chrome)
 ```
 
-**74 tests: 62 server (92% line coverage) and 12 client.** CI runs everything on every push; the server suite uses a real MongoDB through mongodb-memory-server. The tests cover:
+**78 tests: 62 server (92% line coverage), 12 client unit tests and 4 end-to-end tests.** CI runs everything on every push; the server suite uses a real MongoDB through mongodb-memory-server. The tests cover:
 
 - **Auth:** registration and role-escalation attempts, identical errors for wrong passwords and unknown emails, refresh-token rotation, **stolen-token replay revoking the whole session family**, logout, password reset (single-use, no account enumeration) and rate limiting.
 - **Events:** visibility of pending and rejected events, filters, search with regex-escaping, pagination, validation of time and venue rules, poster uploads (valid and malicious files), ownership checks, and the approve/reject flow.
@@ -204,6 +207,7 @@ npm run test:coverage -w server
 - **Real time:** a Socket.IO client receives announcements both as a registered student and as an anonymous follower; invalid tokens are rejected.
 - **Analytics, seed integrity** (counters match registrations; capacity is never exceeded) and the secret-protected reseed endpoint.
 - **Client:** one-click demo login and redirects, API errors mapped onto form fields, event card states, and the formatting and query helpers.
+- **End to end:** Playwright builds the client for production, starts the API on a seeded MongoDB, signs in with each demo account and clicks through every navbar link in real Chrome, failing on any uncaught page error.
 
 **Lighthouse** (production build, simulated mobile):
 
@@ -221,8 +225,8 @@ The landing-page performance range is run-to-run variance in blocking time on th
 1. **MongoDB Atlas:** create a free M0 cluster, allow access from anywhere (`0.0.0.0/0`), and copy the connection string.
 2. **Cloudinary:** copy the `CLOUDINARY_URL` from the dashboard.
 3. **Render (API):** New → Blueprint → this repo ([`render.yaml`](render.yaml)). Fill in `MONGODB_URI`, `CLOUDINARY_URL`, `CLIENT_URL` (your Vercel URL) and `CORS_ORIGINS`. With `DEMO_MODE=true`, the API seeds an empty database on first start, so no shell access is needed.
-4. **Vercel (client):** import the repo with **root directory `client`** and set `VITE_SOCKET_URL=https://<render-app>.onrender.com`. If your Render URL differs, update it in [`client/vercel.json`](client/vercel.json).
-5. **Nightly reset (optional):** add the repo secrets `API_URL` and `RESEED_SECRET` so [`reseed-demo.yml`](.github/workflows/reseed-demo.yml) runs every night.
+4. **Vercel (client):** import the repo with **root directory `client`** and set `VITE_SOCKET_URL` to your Render URL (here `https://eventsphere-api-dlan.onrender.com`). If your Render URL differs, update it in [`client/vercel.json`](client/vercel.json).
+5. **Nightly reset (optional):** add the repo secrets `API_URL` (the Render URL) and `RESEED_SECRET` (copied from the Render service's environment) so [`reseed-demo.yml`](.github/workflows/reseed-demo.yml) runs every night.
 
 ## Roadmap
 
