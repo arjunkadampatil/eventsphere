@@ -18,7 +18,17 @@
 
 The login page has one-click buttons for each role. All data is fictional and resets nightly.
 
-<!-- SCREENSHOTS -->
+![Landing page](docs/screenshots/landing.webp)
+
+| Live announcement + tickets | QR ticket | Club: attendees, CSV, announcements |
+|---|---|---|
+| ![Student dashboard receiving a live announcement](docs/screenshots/live-announcement.webp) | ![QR ticket](docs/screenshots/student-ticket.webp) | ![Club event management](docs/screenshots/club-manage.webp) |
+
+| Admin analytics | Dark mode | Phone (360px) |
+|---|---|---|
+| ![Admin dashboard](docs/screenshots/admin-dashboard.webp) | ![Admin dashboard in dark mode](docs/screenshots/admin-dashboard-dark.webp) | ![Events on a phone](docs/screenshots/events-mobile.webp) |
+
+More: [events catalogue](docs/screenshots/events.webp) · [event page](docs/screenshots/event-detail.webp) · [door scanner](docs/screenshots/scanner.webp)
 
 ---
 
@@ -185,7 +195,26 @@ npm test                              # server (Jest) + client (Vitest)
 npm run test:coverage -w server
 ```
 
-<!-- TEST-SUMMARY -->
+**74 tests: 62 server (92% line coverage) and 12 client.** CI runs everything on every push; the server suite uses a real MongoDB through mongodb-memory-server. The tests cover:
+
+- **Auth:** registration and role-escalation attempts, identical errors for wrong passwords and unknown emails, refresh-token rotation, **stolen-token replay revoking the whole session family**, logout, password reset (single-use, no account enumeration) and rate limiting.
+- **Events:** visibility of pending and rejected events, filters, search with regex-escaping, pagination, validation of time and venue rules, poster uploads (valid and malicious files), ownership checks, and the approve/reject flow.
+- **Registrations:** **8 concurrent sign-ups for 3 seats produce exactly 3 registrations**, plus duplicate, closed and unapproved events, and cancellation freeing the seat.
+- **Attendance:** single-use check-in, wrong-event tickets, cross-club access, CSV escaping (`=HYPERLINK` injection and quotes), and certificate rules (attended and event ended).
+- **Real time:** a Socket.IO client receives announcements both as a registered student and as an anonymous follower; invalid tokens are rejected.
+- **Analytics, seed integrity** (counters match registrations; capacity is never exceeded) and the secret-protected reseed endpoint.
+- **Client:** one-click demo login and redirects, API errors mapped onto form fields, event card states, and the formatting and query helpers.
+
+**Lighthouse** (production build, simulated mobile):
+
+| Page | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Landing | 80–96 | 100 | 100 | 100 |
+| Events | 92–93 | 100 | 100 | 100 |
+| Event detail | 95 | 100 | 100 | 100 |
+| Login | 99 | 100 | 100 | 100 |
+
+The landing-page performance range is run-to-run variance in blocking time on the shared CI runner.
 
 ## Deploy
 
@@ -214,7 +243,21 @@ Both contributors' original commits are preserved in this repository's history.
 
 ### What's new in v2 (rebuilt by Arjun Kadam)
 
-<!-- V2-TABLE -->
+| Area | v1 | v2 |
+|---|---|---|
+| Structure | `backend/` + static HTML pages | npm-workspaces monorepo: `server/` + `client/` |
+| Frontend | 14 hand-written HTML pages, inline scripts | React 18 SPA with routing, data caching, lazy-loaded dashboards, light/dark mode, 360px-responsive |
+| Data model | Attendees embedded in events; date and time stored separately | `Registration` collection with a unique (event, user) index; a single `startsAt`/`endsAt` timestamp |
+| Privacy | `GET /api/events` was public and returned **every attendee's name and email**, plus pending events | Public API shows approved events only; attendee lists need the hosting club or an admin; meeting links go only to registered students |
+| Attendance | Anyone could mark anyone present by submitting their email | Random, unguessable QR ticket codes, checked in by the hosting club and single-use |
+| Auth | 8-hour JWT in `localStorage`; Google callback wrote the token into an inline `<script>` (XSS risk); login revealed which emails exist | 15-minute access tokens in memory + rotating httpOnly refresh cookie with reuse detection; OAuth never exposes tokens; uniform login errors; rate limiting |
+| Validation and errors | Ad-hoc checks; status update accepted any string | zod schemas on every route; one error shape `{ error: { message, details } }` |
+| Capacity | Read-then-write: could oversell under load | Atomic `$inc` with a capacity condition (tested with concurrent requests) |
+| Uploads | Local disk (lost on every Render deploy) | Cloudinary, with type and size limits |
+| Real time | none | Socket.IO announcements with toasts and a live feed |
+| Certificates | Required each club to upload a PDF template; text placement guessed | Generated, branded PDF with a verification code |
+| Docs and tests | none | OpenAPI/Swagger, 74 tests, CI, nightly demo refresh |
+| Repo hygiene | Replit state, uploaded files, a 20 MB zip in history | Purged from history; `.gitignore` and documented `.env.example` files |
 
 ## License
 
